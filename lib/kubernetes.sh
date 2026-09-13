@@ -33,6 +33,19 @@ check_nodes() {
   fi
 }
 
+check_namespaces() {
+  local unhealthy
+
+  unhealthy="$(k get namespaces --no-headers 2>/dev/null | awk '$2 != "Active" {print}')"
+
+  if [ -z "$unhealthy" ]; then
+    pass "All namespaces are Active"
+  else
+    fail "Namespaces not Active:"
+    echo "$unhealthy" | sed 's/^/       /'
+  fi
+}
+
 check_node_pressure() {
   local pressure
 
@@ -107,5 +120,87 @@ check_deployments() {
   else
     fail "Deployments not fully Ready:"
     echo "$bad_deployments" | sed 's/^/       /'
+  fi
+}
+
+check_statefulsets() {
+  local bad_statefulsets
+
+  bad_statefulsets="$(k get statefulsets -A --no-headers 2>/dev/null | awk '
+    {
+      split($3, ready, "/")
+      if (ready[1] != ready[2]) {
+        print
+      }
+    }
+  ')"
+
+  if [ -z "$bad_statefulsets" ]; then
+    pass "All StatefulSets are Ready"
+  else
+    fail "StatefulSets not fully Ready:"
+    echo "$bad_statefulsets" | sed 's/^/       /'
+  fi
+}
+
+check_daemonsets() {
+  local bad_daemonsets
+
+  bad_daemonsets="$(k get daemonsets -A --no-headers 2>/dev/null | awk '$3 != $5 {print}')"
+
+  if [ -z "$bad_daemonsets" ]; then
+    pass "All DaemonSets are Ready"
+  else
+    fail "DaemonSets not fully Ready:"
+    echo "$bad_daemonsets" | sed 's/^/       /'
+  fi
+}
+
+check_service_endpoints() {
+  local services_without_endpoints
+  local exclusions
+
+  exclusions="$(printf '%s\n' "${SERVICE_ENDPOINT_EXCLUSIONS[@]}")"
+
+  services_without_endpoints="$(k get endpoints -A --no-headers 2>/dev/null \
+    | awk '$3 == "<none>" {print $1 "/" $2 "\t" $0}' \
+    | grep -F -v -f <(printf '%s\n' "$exclusions") || true)"
+
+  if [ -z "$services_without_endpoints" ]; then
+    pass "All Services have ready endpoints"
+  else
+    fail "Services without ready endpoints:"
+    echo "$services_without_endpoints" | sed 's/^/       /'
+  fi
+}
+
+check_certificates() {
+  local not_ready
+
+  if ! k get certificates -A >/dev/null 2>&1; then
+    warn "Certificate check unavailable; cert-manager may not be installed"
+    return
+  fi
+
+  not_ready="$(k get certificates -A --no-headers 2>/dev/null | awk '$3 != "True" {print}')"
+
+  if [ -z "$not_ready" ]; then
+    pass "All TLS certificates are Ready"
+  else
+    fail "TLS certificates not Ready:"
+    echo "$not_ready" | sed 's/^/       /'
+  fi
+}
+
+check_ingresses() {
+  local without_address
+
+  without_address="$(k get ingress -A --no-headers 2>/dev/null | awk '$5 == "" || $5 == "<none>" {print}')"
+
+  if [ -z "$without_address" ]; then
+    pass "All Ingresses have an address"
+  else
+    fail "Ingresses without an address:"
+    echo "$without_address" | sed 's/^/       /'
   fi
 }

@@ -8,21 +8,22 @@ The `healthcheck.sh` script performs the following checks:
 
 ### Cluster
 - Checks `kubectl` connectivity.
-- Verifies node status and counts.
+- Verifies node and namespace status.
 - Monitors node pressure.
 - Identifies unhealthy pods.
 - Detects excessive pod restarts.
 - Checks Persistent Volume Claims (PVCs).
-- Verifies deployment statuses.
+- Verifies Deployment, StatefulSet, DaemonSet, and Service endpoint readiness.
 
 ### Flux CD
 - Checks Flux Kustomizations.
 - Verifies Flux HelmReleases.
 - Monitors Flux Sources.
+- Verifies Flux HelmRepositories.
 
 ### Ingress
 - Checks the Nginx Ingress service.
-- Verifies external URLs configured for applications.
+- Verifies ingress addresses, TLS certificate readiness, and external URLs configured for applications.
 
 ### Storage
 - Monitors qBittorrent downloads.
@@ -31,6 +32,9 @@ The `healthcheck.sh` script performs the following checks:
 ### Applications
 - Checks the status of Homepage.
 - Checks the status of Grafana.
+- Checks the smoke test, storage test, and Cloudflared deployments.
+- Checks Keycloak and its PostgreSQL deployment.
+- Checks the Rocket.Chat HelmRelease.
 - Checks the status of Jellyfin.
 - Checks the status of qBittorrent.
 - Checks the status of Gluetun.

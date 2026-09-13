@@ -15,6 +15,15 @@ INGRESS_NAMESPACE="nginx-ingress"
 INGRESS_SERVICE="ingress-nginx-controller"
 EXPECTED_INGRESS_IP="192.168.50.240"
 
+# kube-prometheus-stack creates these control-plane metric Services without
+# endpoint objects; Prometheus discovers their targets separately.
+SERVICE_ENDPOINT_EXCLUSIONS=(
+  "kube-system/kube-prometheus-stack-kube-controller-manager"
+  "kube-system/kube-prometheus-stack-kube-etcd"
+  "kube-system/kube-prometheus-stack-kube-proxy"
+  "kube-system/kube-prometheus-stack-kube-scheduler"
+)
+
 # NAS / NFS
 NAS_SERVER="192.168.50.227"
 NAS_DOWNLOADS_PATH="/downloads"
@@ -41,6 +50,32 @@ QBITTORRENT_DEPLOYMENT="qbittorrent"
 QBITTORRENT_CONTAINER="qbittorrent"
 GLUETUN_CONTAINER="gluetun"
 QBITTORRENT_URL="https://qbittorrent.dev-andrew.com"
+
+QBITTORRENT_OAUTH2_PROXY_DEPLOYMENT="qbittorrent-oauth2-proxy"
+
+SMOKE_TEST_NAMESPACE="smoke-test"
+SMOKE_TEST_DEPLOYMENT="nginx-smoke-test"
+SMOKE_TEST_URL="http://smoke-test.dev-andrew.com"
+
+STORAGE_TEST_NAMESPACE="storage-test"
+STORAGE_TEST_DEPLOYMENT="storage-test"
+STORAGE_TEST_PVC="storage-test-data"
+
+CLOUDFLARED_NAMESPACE="cloudflare"
+CLOUDFLARED_DEPLOYMENT="cloudflared"
+CLOUDFLARED_LOG_LOOKBACK="15m"
+
+KEYCLOAK_NAMESPACE="keycloak"
+KEYCLOAK_DEPLOYMENT="keycloak"
+KEYCLOAK_POSTGRES_DEPLOYMENT="keycloak-postgres"
+KEYCLOAK_URL="https://keycloak.dev-andrew.com"
+
+ROCKETCHAT_NAMESPACE="rocketchat"
+ROCKETCHAT_HELMRELEASE="rocketchat"
+ROCKETCHAT_DEPLOYMENT="rocketchat-rocketchat"
+ROCKETCHAT_MONGODB_STATEFULSET="rocketchat-mongodb"
+ROCKETCHAT_NATS_STATEFULSET="rocketchat-nats"
+ROCKETCHAT_URL="https://rocketchat.dev-andrew.com"
 
 # Health thresholds
 GLUETUN_LOG_LOOKBACK="10m"

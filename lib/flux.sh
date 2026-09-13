@@ -57,3 +57,21 @@ check_flux_sources() {
     echo "$not_ready" | sed 's/^/       /'
   fi
 }
+
+check_flux_helmrepositories() {
+  local not_ready
+
+  if ! f get sources helm -A >/dev/null 2>&1; then
+    warn "Flux HelmRepository check failed or no HelmRepositories found"
+    return
+  fi
+
+  not_ready="$(f get sources helm -A --no-header 2>/dev/null | awk '$5 != "True" {print}')"
+
+  if [ -z "$not_ready" ]; then
+    pass "Flux HelmRepositories Ready"
+  else
+    fail "Flux HelmRepositories not Ready:"
+    echo "$not_ready" | sed 's/^/       /'
+  fi
+}

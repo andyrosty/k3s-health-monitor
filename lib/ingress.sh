@@ -54,4 +54,7 @@ check_external_urls() {
   check_url "Grafana" "$GRAFANA_URL" "200 302 403"
   check_url "Jellyfin" "$JELLYFIN_URL" "200 302 401 403"
   check_url "qBittorrent" "$QBITTORRENT_URL" "200 302 401 403"
+  check_url "Smoke test" "$SMOKE_TEST_URL" "200"
+  check_url "Keycloak" "$KEYCLOAK_URL" "200 302"
+  check_url "Rocket.Chat" "$ROCKETCHAT_URL" "200 302 401 403"
 }
